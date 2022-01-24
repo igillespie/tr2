@@ -197,7 +197,7 @@
   	<visual>
      <origin xyz="0 0 0" rpy="0 0 0"/>
      <geometry>
-      	<cylinder radius=".01" length=".01"/>
+      	<cylinder radius=".02" length=".02"/>
      </geometry>
      <material name="Gray">
           <color rgba="${155/255} ${155/255} ${155/255} 1.0"/>

@@ -142,6 +142,12 @@ def generate_launch_description():
         name="ekf_odom_pub",
         executable="ekf_odom_pub",
         output="screen")
+        
+  imu = Node(
+        package="bno055_publisher",
+        name="bno055_publisher",
+        executable="bno055",
+        output="screen")
 
   
   # Create the launch description and populate
@@ -159,14 +165,16 @@ def generate_launch_description():
   #ld.add_action(declare_world_cmd)
 
   # Add any actions
-  ld.add_action(start_robot_localization_cmd)
-  ld.add_action(start_robot_state_publisher_cmd)
-  ld.add_action(start_rviz_cmd)
+  
   ld.add_action(micro_ros_agent)
   ld.add_action(lidar_node)
   ld.add_action(tf2_node)
   ld.add_action(joy_node)
   ld.add_action(joy_teleop_node)
   ld.add_action(odometry)
+  ld.add_action(imu)
+  ld.add_action(start_robot_localization_cmd)
+  ld.add_action(start_robot_state_publisher_cmd)
+  ld.add_action(start_rviz_cmd)
 
   return ld
