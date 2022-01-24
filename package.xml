@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>two_wheeled_robot</name>
+  <version>0.0.2</version>
+  <description>Differential drive robot to help keep our house tidy.</description>
+  <maintainer email="ian_gillespie@mac.com">ian gillespie</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  
+  <exec_depend>ekf_odom_pub</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+	<exec_depend>robot_state_publisher</exec_depend>
+	<exec_depend>teleop_twist_joy</exec_depend>
+	<exec_depend>joy</exec_depend>
+	<exec_depend>rviz2</exec_depend>
+	<exec_depend>xacro</exec_depend>
+	<exec_depend>ros2launch</exec_depend>
+	<exec_depend>micro_ros_agent</exec_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
