@@ -19,9 +19,12 @@ def generate_launch_description():
   teleop_joy_params_path = os.path.join(pkg_share, 'config/teleop_twist_joy_node.yaml')
   joy_params_path = os.path.join(pkg_share, 'config/joy_node.yaml')
   lidar_params_path = os.path.join(pkg_share, 'config/lidar.yaml')
+  nav_params_path = os.path.join(pkg_share, '/config/slam.yaml')
+  amcl_params = os.path.join(pkg_share, '/config/amcl.yaml')
   
   robot_name_in_urdf = 'two_wheeled_robot'
   default_rviz_config_path = os.path.join(pkg_share, 'rviz/tr2.rviz')
+  
   #world_file_name = 'two_wheeled_robot_world/smalltown.world'
   #world_path = os.path.join(pkg_share, 'worlds', world_file_name)
   
@@ -33,6 +36,7 @@ def generate_launch_description():
   rviz_config_file = LaunchConfiguration('rviz_config_file')
   use_robot_state_pub = LaunchConfiguration('use_robot_state_pub')
   use_rviz = LaunchConfiguration('use_rviz')
+  use_slam = LaunchConfiguration('use_slam')
   use_sim_time = LaunchConfiguration('use_sim_time')
   use_simulator = LaunchConfiguration('use_simulator')
   use_lidar = LaunchConfiguration('use_lidar')
@@ -59,6 +63,11 @@ def generate_launch_description():
     default_value='True',
     description='Whether to start RVIZ')
     
+  declare_use_slam_cmd = DeclareLaunchArgument(
+    name='use_slam',
+    default_value='False',
+    description='Whether to start SLAM toolbox')
+    
   declare_use_lidar_cmd = DeclareLaunchArgument(
     name='use_lidar',
     default_value='True',
@@ -75,6 +84,16 @@ def generate_launch_description():
     name='use_robot_state_pub',
     default_value='True',
     description='Whether to start the robot state publisher')
+    
+  # Map fully qualified names to relative ones so the node's namespace can be prepended.
+  # In case of the transforms (tf), currently, there doesn't seem to be a better alternative
+  # https://github.com/ros/geometry2/issues/32
+  # https://github.com/ros/robot_state_publisher/pull/30
+  # TODO(orduno) Substitute with `PushNodeRemapping`
+  #              https://github.com/ros2/launch_ros/issues/56
+  
+  remappings = [('/tf', 'tf'),
+                ('/tf_static', 'tf_static')]
         
   # Start robot localization using an Extended Kalman filter
   start_robot_localization_cmd = Node(
@@ -93,6 +112,27 @@ def generate_launch_description():
     parameters=[{'use_sim_time': use_sim_time, 
     'robot_description': Command(['xacro ', model])}],
     arguments=[default_model_path])
+    
+    
+  start_sync_slam_toolbox_node = Node(
+    condition=IfCondition(use_slam),
+    parameters=[
+          nav_params_path,
+          {'use_sim_time': use_sim_time}
+        ],
+    package='slam_toolbox',
+    executable='async_slam_toolbox_node',
+    name='slam_toolbox',
+    output='screen')
+    
+  amcl = Node(
+    condition=IfCondition(use_slam),
+    package='nav2_amcl',
+    executable='amcl',
+    name='amcl',
+    output='screen',
+    parameters=[amcl_params],
+    remappings=remappings)
 
   # Launch RViz
   start_rviz_cmd = Node(
@@ -121,8 +161,9 @@ def generate_launch_description():
 		        
   tf2_node = Node(package='tf2_ros',
 	executable='static_transform_publisher',
-	name='static_tf_pub_laser',
+	name='static_transform_publisher',
 	arguments=['0', '0', '0.02','0', '0', '0', '1','base_link','laser_frame'])
+	
   
   #Joy stick control
   joy_node = Node(
@@ -138,14 +179,15 @@ def generate_launch_description():
         parameters=[teleop_joy_params_path])
         
   odometry = Node(
-        package="ekf_odom_pub",
-        name="ekf_odom_pub",
-        executable="ekf_odom_pub",
+        package="diff_drive_controller",
+        name="diff_drive_controller",
+        executable="diff_drive_controller",
         output="screen")
         
   imu = Node(
         package="bno055_publisher",
         name="bno055_publisher",
+        namespace="imu",
         executable="bno055",
         output="screen")
 
@@ -157,6 +199,7 @@ def generate_launch_description():
   ld.add_action(declare_model_path_cmd)
   ld.add_action(declare_rviz_config_file_cmd)
   ld.add_action(declare_use_lidar_cmd)
+  ld.add_action(declare_use_slam_cmd)
   #ld.add_action(declare_simulator_cmd)
   ld.add_action(declare_use_robot_state_pub_cmd)  
   ld.add_action(declare_use_rviz_cmd) 
@@ -165,7 +208,6 @@ def generate_launch_description():
   #ld.add_action(declare_world_cmd)
 
   # Add any actions
-  
   ld.add_action(micro_ros_agent)
   ld.add_action(lidar_node)
   ld.add_action(tf2_node)
@@ -175,6 +217,9 @@ def generate_launch_description():
   ld.add_action(imu)
   ld.add_action(start_robot_localization_cmd)
   ld.add_action(start_robot_state_publisher_cmd)
+  ld.add_action(start_sync_slam_toolbox_node)
+  #ld.add_action(amcl)
+  
   ld.add_action(start_rviz_cmd)
 
   return ld
