@@ -52,7 +52,9 @@
   </xacro:macro>
 
   <!-- ****************** ROBOT BASE FOOTPRINT ***************************  -->
-  <!-- Define the center of the main robot chassis projected on the ground -->	
+  <!-- Define the center of the main robot chassis projected on the ground -->
+
+
   <link name="base_footprint"/>
 
   <!-- The base footprint of the robot is located underneath the chassis -->
@@ -61,11 +63,11 @@
     <child link="base_link" />
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
-
+  
   <!-- ********************** ROBOT BASE *********************************  -->
   <link name="base_link">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
        <geometry>
         <box size="${base_length} ${base_width} ${base_height}"/>
       </geometry>
@@ -87,7 +89,8 @@
   <gazebo reference="base_link">
     <material>Gazebo/Red</material>
   </gazebo>
-
+ 
+  
   <!-- *********************** DRIVE WHEELS ******************************  -->
 	
   <xacro:macro name="wheel" params="prefix x_reflect y_reflect">

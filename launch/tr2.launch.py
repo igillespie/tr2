@@ -19,8 +19,9 @@ def generate_launch_description():
   teleop_joy_params_path = os.path.join(pkg_share, 'config/teleop_twist_joy_node.yaml')
   joy_params_path = os.path.join(pkg_share, 'config/joy_node.yaml')
   lidar_params_path = os.path.join(pkg_share, 'config/lidar.yaml')
-  nav_params_path = os.path.join(pkg_share, '/config/slam.yaml')
-  amcl_params = os.path.join(pkg_share, '/config/amcl.yaml')
+  nav_params_path = os.path.join(pkg_share, 'config/slam.yaml')
+  map_server_params_path = os.path.join(pkg_share, 'config/map_server.yaml')
+  #amcl_params = os.path.join(pkg_share, '/config/amcl.yaml')
   
   robot_name_in_urdf = 'two_wheeled_robot'
   default_rviz_config_path = os.path.join(pkg_share, 'rviz/tr2.rviz')
@@ -85,6 +86,12 @@ def generate_launch_description():
     default_value='True',
     description='Whether to start the robot state publisher')
     
+    
+  declare_map_command = DeclareLaunchArgument(
+     'map',
+     default_value=os.path.join(pkg_share, 'maps', 'map.yaml'),
+     description='Full path to map yaml file to load')
+    
   # Map fully qualified names to relative ones so the node's namespace can be prepended.
   # In case of the transforms (tf), currently, there doesn't seem to be a better alternative
   # https://github.com/ros/geometry2/issues/32
@@ -125,13 +132,22 @@ def generate_launch_description():
     name='slam_toolbox',
     output='screen')
     
-  amcl = Node(
-    condition=IfCondition(use_slam),
-    package='nav2_amcl',
-    executable='amcl',
-    name='amcl',
+  #amcl = Node(
+    #condition=IfCondition(use_slam),
+    #package='nav2_amcl',
+    #executable='amcl',
+    #name='amcl',
+    #output='screen',
+    #parameters=[amcl_params],
+    #remappings=remappings)
+    
+    
+  map_server = Node(
+    package='nav2_map_server',
+    executable='map_server',
+    name='map_server',
     output='screen',
-    parameters=[amcl_params],
+    #parameters=[map_server_params_path],
     remappings=remappings)
 
   # Launch RViz
@@ -158,12 +174,19 @@ def generate_launch_description():
 	output='screen',
 	emulate_tty=True,
 	parameters=[lidar_params_path])
-		        
-  tf2_node = Node(package='tf2_ros',
-	executable='static_transform_publisher',
-	name='static_transform_publisher',
-	arguments=['0', '0', '0.02','0', '0', '0', '1','base_link','laser_frame'])
 	
+  #base_link_tf = Node(package='tf2_ros',
+	#executable='static_transform_publisher',
+	#name='base_link_tf_broadcaster',
+	#output='screen',
+	#arguments=['0.0', '0.0', '0.0','0', '0', '0', '1','base_footprint','base_link'])
+		        
+ # tf2_node = Node(package='tf2_ros',
+	#executable='static_transform_publisher',
+	#name='laser_tf_broadcaster',
+	#arguments=['0.18', '0.0', '0.33','0', '0', '0', '1','base_link','lidar_link'])
+  
+  
   
   #Joy stick control
   joy_node = Node(
@@ -205,21 +228,24 @@ def generate_launch_description():
   ld.add_action(declare_use_rviz_cmd) 
   ld.add_action(declare_use_sim_time_cmd)
   ld.add_action(declare_use_simulator_cmd)
+  #ld.add_action(declare_map_command)
   #ld.add_action(declare_world_cmd)
 
   # Add any actions
   ld.add_action(micro_ros_agent)
   ld.add_action(lidar_node)
-  ld.add_action(tf2_node)
+  #ld.add_action(base_link_tf)
+  #ld.add_action(tf2_node)
   ld.add_action(joy_node)
   ld.add_action(joy_teleop_node)
   ld.add_action(odometry)
   ld.add_action(imu)
-  ld.add_action(start_robot_localization_cmd)
   ld.add_action(start_robot_state_publisher_cmd)
+  #ld.add_action(start_robot_localization_cmd)
   ld.add_action(start_sync_slam_toolbox_node)
+  #ld.add_action(map_server)
   #ld.add_action(amcl)
-  
+
   ld.add_action(start_rviz_cmd)
 
   return ld
