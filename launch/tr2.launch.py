@@ -181,7 +181,7 @@ def generate_launch_description():
 	#output='screen',
 	#arguments=['0.0', '0.0', '0.0','0', '0', '0', '1','base_footprint','base_link'])
 		        
- # tf2_node = Node(package='tf2_ros',
+  #lidar_link_tf = Node(package='tf2_ros',
 	#executable='static_transform_publisher',
 	#name='laser_tf_broadcaster',
 	#arguments=['0.18', '0.0', '0.33','0', '0', '0', '1','base_link','lidar_link'])
@@ -205,6 +205,7 @@ def generate_launch_description():
         package="diff_drive_controller",
         name="diff_drive_controller",
         executable="diff_drive_controller",
+        parameters=[{"broadcast_transform" : False}],
         output="screen")
         
   imu = Node(
@@ -235,13 +236,13 @@ def generate_launch_description():
   ld.add_action(micro_ros_agent)
   ld.add_action(lidar_node)
   #ld.add_action(base_link_tf)
-  #ld.add_action(tf2_node)
+  #ld.add_action(lidar_link_tf)
   ld.add_action(joy_node)
   ld.add_action(joy_teleop_node)
   ld.add_action(odometry)
   ld.add_action(imu)
   ld.add_action(start_robot_state_publisher_cmd)
-  #ld.add_action(start_robot_localization_cmd)
+  ld.add_action(start_robot_localization_cmd)
   ld.add_action(start_sync_slam_toolbox_node)
   #ld.add_action(map_server)
   #ld.add_action(amcl)

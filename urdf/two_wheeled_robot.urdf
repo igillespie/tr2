@@ -174,10 +174,17 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="-0.10 0 0.05" rpy="0 0 0"/>
+    <origin xyz="-0.08 -0.06 0.05" rpy="0 0 0"/>
   </joint>
 
-  <link name="imu_link"/>
+  <link name="imu_link">
+    <visual>
+	<origin rpy="0 0 0" xyz="0 0 0"/>
+	<geometry>
+	   <box size="0.01 0.01 0.001"/>
+	</geometry>
+     </visual>
+   </link>
   
   <!-- *********************** GPS SETUP **********************************  -->
   <!--

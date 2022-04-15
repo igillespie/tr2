@@ -2,7 +2,7 @@
   ros__parameters:
     autorepeat_rate: 0.0
     coalesce_interval_ms: 1
-    deadzone: 0.05
+    deadzone: 0.15
     device_id: 0
     device_name: ''
     qos_overrides:

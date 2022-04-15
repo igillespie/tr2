@@ -32,7 +32,7 @@ ekf_filter_node:
 
 # If you're having trouble, try setting this to true, and then echo the /diagnostics_agg topic to see if the node is
 # unhappy with any settings or data.
-        print_diagnostics: true
+        print_diagnostics: false
 
 # Debug settings. Not for the faint of heart. Outputs a ludicrous amount of information to the file specified by
 # debug_out_file. I hope you like matrices! Please note that setting this to true will have strongly deleterious
@@ -46,7 +46,7 @@ ekf_filter_node:
         publish_tf: true
 
 # Whether to publish the acceleration state. Defaults to false if unspecified.
-        publish_acceleration: false
+        publish_acceleration: true
 
 # If the filter sees a jump back in time, the filter is reset (convenient for testing with rosbags!)
         reset_on_time_jump: true
@@ -89,11 +89,11 @@ ekf_filter_node:
 # do not provide some of the state variables estimated by the filter. For example, a TwistWithCovarianceStamped message
 # has no pose information, so the first six values would be meaningless in that case. Each vector defaults to all false
 # if unspecified, effectively making this parameter required for each sensor.
-        odom0_config: [false, false, false,
-                       false, false, true,
-                       true,  true,  false,
-                       false, false, true,
-                       false, false, false]
+        odom0_config: [true, true, false,
+               	false, false, true,
+               	false, false, false,
+               	false, false, true,
+               	false, false, false]
 
         #        [x_pos   , y_pos    , z_pos,
         #         roll    , pitch    , yaw,
@@ -118,7 +118,7 @@ ekf_filter_node:
 # data is converted to velocity data by differentiating the absolute pose measurements. These velocities are then
 # integrated as usual. NOTE: this only applies to sensors that provide pose measurements; setting differential to true
 # for twist measurements has no effect.
-        odom0_differential: false
+        odom0_differential: true
 
 # [ADVANCED] When the node starts, if this parameter is true, then the first measurement is treated as a "zero point"
 # for all future measurements. While you can achieve the same effect with the differential paremeter, the key
@@ -137,10 +137,10 @@ ekf_filter_node:
 
         imu0: /imu/data
         imu0_config: [false, false, false,
-                      false,  false,  true,
+                      false,  false,  false,
                       false, false, false,
                       false,  false,  true,
-                      true,  false,  false]
+                      true,  true,  false]
 
         #        [x_pos   , y_pos    , z_pos,
         #         roll    , pitch    , yaw,
@@ -149,27 +149,32 @@ ekf_filter_node:
         #         x_accel , y_accel  , z_accel]
         
         #imu0_nodelay: false
-        imu0_differential: false
+        #imu0_differential: false
         #imu0_relative: false
-        #imu0_queue_size: 2
-        #imu0_pose_rejection_threshold: 0.2                 # Note the difference in parameter names
-        #imu0_twist_rejection_threshold: 0.2                #
-        #imu0_linear_acceleration_rejection_threshold: 0.2  #
+        #imu0_queue_size: 10
+        imu0_pose_rejection_threshold: 0.003                 # Note the difference in parameter names
+        #imu0_twist_rejection_threshold: 0.03                #
+        #imu0_linear_acceleration_rejection_threshold: 0.03  #
 
 # [ADVANCED] Some IMUs automatically remove acceleration due to gravity, and others don't. If yours doesn't, please set
 # this to true, and *make sure* your data conforms to REP-10	3, specifically, that the data is in ENU frame.
-        imu0_remove_gravitational_acceleration: true
+        imu0_remove_gravitational_acceleration: false
+        
+        process_noise_covariance: [0.07,   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.07,   0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.08,   0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.05,   0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.05,   0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.08,   0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.045,   0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.045,   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.06,   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.03,   0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.03,   0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.04,   0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.03,   0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.03,   0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.025]
 
-# [ADVANCED]  The EKF and UKF models follow a standard predict/correct cycle. During prediction, if there is no
-# acceleration reference, the velocity at time t+1 is simply predicted to be the same as the velocity at time t. During
-# correction, this predicted value is fused with the measured value to produce the new velocity estimate. This can be
-# problematic, as the final velocity will effectively be a weighted average of the old velocity and the new one. When
-# this velocity is the integrated into a new pose, the result can be sluggish covergence. This effect is especially
-# noticeable with LIDAR data during rotations. To get around it, users can try inflating the process_noise_covariance
-# for the velocity variable in question, or decrease the  variance of the variable in question in the measurement
-# itself. In addition, users can also take advantage of the control command being issued to the robot at the time we
-# make the prediction. If control is used, it will get converted into an acceleration term, which will be used during
-# predicition. Note that if an acceleration measurement for the variable in question is available from one of the
-# inputs, the control term will be ignored.
-# Whether or not we use the control input during predicition. Defaults to false.
- 
+        
+
