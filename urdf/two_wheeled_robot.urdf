@@ -71,8 +71,8 @@
        <geometry>
         <box size="${base_length} ${base_width} ${base_height}"/>
       </geometry>
-      <material name="Red">
-        <color rgba="${255/255} ${0/255} ${0/255} 1.0"/>
+      <material name="Gray">
+        <color rgba="${144/255} ${144/255} ${144/255} 1.0"/>
       </material>
     </visual>
 
@@ -90,6 +90,32 @@
     <material>Gazebo/Red</material>
   </gazebo>
  
+ <!--BACK PLATE -->
+  <joint name="back_plate_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="back_plate_link"/>
+    <origin xyz="${(base_length/-2.)-.01} 0.0 0.10" rpy="0 0 0"/>
+  </joint>
+  <link name="back_plate_link">
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+       <geometry>
+        <box size="${.02} ${base_width} ${.002}"/>
+      </geometry>
+      <material name="Green">
+        <color rgba="${240/255} ${255/255} ${240/255} 1.0"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${.02} ${base_width} ${.002}"/>
+      </geometry>
+    </collision>
+
+    <xacro:box_inertia m="40.0" w="${base_width}" d="${base_length}" h="${base_height}"/>
+    
+  </link>
   
   <!-- *********************** DRIVE WHEELS ******************************  -->
 	
@@ -138,7 +164,7 @@
   <!-- We add a caster wheel. It will be modeled as sphere.
        We define the wheel’s geometry, material and the joint to connect it to 
        base_link at the appropriate location. -->
-  <link name="front_caster">
+  <link name="rear_caster">
     <visual>
       <geometry>
         <sphere radius="0.05"/>
@@ -156,7 +182,7 @@
     <xacro:sphere_inertia m="10.05" r="${caster_radius}"/>
   </link>
 
-  <gazebo reference="front_caster">
+  <gazebo reference="rear_caster">
     <mu1>0.01</mu1>
     <mu2>0.01</mu2>
     <material>Gazebo/White</material>
@@ -164,7 +190,7 @@
 
   <joint name="caster_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="front_caster"/>
+    <child link="rear_caster"/>
     <origin xyz="${-caster_xoff} 0.0 ${-(base_height/2)-(caster_radius/4)}" rpy="0 0 0"/>
   </joint>
   

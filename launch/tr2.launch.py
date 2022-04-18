@@ -41,6 +41,7 @@ def generate_launch_description():
   use_sim_time = LaunchConfiguration('use_sim_time')
   use_simulator = LaunchConfiguration('use_simulator')
   use_lidar = LaunchConfiguration('use_lidar')
+  use_voice = LaunchConfiguration('use_voice')
   
   #world = LaunchConfiguration('world')
   
@@ -73,6 +74,11 @@ def generate_launch_description():
     name='use_lidar',
     default_value='True',
     description='Whether to start LiDAR')
+    
+  declare_use_voice_cmd = DeclareLaunchArgument(
+    name='use_voice',
+    default_value='True',
+    description='Whether to use voice recognition')
     
   # Declare the launch arguments  
   declare_model_path_cmd = DeclareLaunchArgument(
@@ -107,7 +113,7 @@ def generate_launch_description():
     package='robot_localization',
     executable='ekf_node',
     name='ekf_filter_node',
-    output='screen',
+    #output='screen',
     parameters=[robot_localization_file_path, 
     {'use_sim_time': use_sim_time}])
 
@@ -171,7 +177,7 @@ def generate_launch_description():
   	condition=IfCondition(use_lidar),
 	executable='ydlidar_ros2_driver_node',
 	name='ydlidar_ros2_driver_node',
-	output='screen',
+	#output='screen',
 	emulate_tty=True,
 	parameters=[lidar_params_path])
 	
@@ -215,7 +221,30 @@ def generate_launch_description():
         executable="bno055",
         output="screen")
 
-  
+  voice_recog = Node(
+        condition=IfCondition(use_voice),
+        package="voice_recognition",
+        name="voice_recognition",
+        namespace="speech",
+        executable="voice_recognition",
+        output="screen")
+        
+  voice_tts = Node(
+        condition=IfCondition(use_voice),
+        package="voice_tts",
+        name="voice_tts",
+        namespace="speech",
+        executable="voice_tts",
+        output="screen")
+        
+  voice_interpreter = Node(
+        condition=IfCondition(use_voice),
+        package="voice_interpreter",
+        name="voice_interpreter",
+        namespace="speech",
+        executable="voice_interpreter",
+        output="screen")
+        
   # Create the launch description and populate
   ld = LaunchDescription()
 
@@ -223,6 +252,7 @@ def generate_launch_description():
   ld.add_action(declare_model_path_cmd)
   ld.add_action(declare_rviz_config_file_cmd)
   ld.add_action(declare_use_lidar_cmd)
+  ld.add_action(declare_use_voice_cmd)
   ld.add_action(declare_use_slam_cmd)
   #ld.add_action(declare_simulator_cmd)
   ld.add_action(declare_use_robot_state_pub_cmd)  
@@ -244,6 +274,9 @@ def generate_launch_description():
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_robot_localization_cmd)
   ld.add_action(start_sync_slam_toolbox_node)
+  ld.add_action(voice_recog)
+  ld.add_action(voice_tts)
+  ld.add_action(voice_interpreter)
   #ld.add_action(map_server)
   #ld.add_action(amcl)
 
