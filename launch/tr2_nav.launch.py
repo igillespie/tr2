@@ -20,7 +20,7 @@ def generate_launch_description():
   joy_params_path = os.path.join(pkg_share, 'config/joy_node.yaml')
   lidar_params_path = os.path.join(pkg_share, 'config/lidar.yaml')
   
-  nav_params_path = os.path.join(pkg_share, 'config/slam.yaml')
+  #nav_params_path = os.path.join(pkg_share, 'config/slam.yaml')
    
   params_file = LaunchConfiguration('params_file')
   nav2_dir = FindPackageShare(package='nav2_bringup').find('nav2_bringup')
@@ -29,8 +29,8 @@ def generate_launch_description():
   #map_server_params_path = os.path.join(pkg_share, 'config/map_server.yaml')
   static_map_path = os.path.join(pkg_share, 'maps/home-best.yaml')
   nav2_params_path = os.path.join(pkg_share, 'params', 'nav2_params.yaml')
-  nav2_bt_path = FindPackageShare(package='nav2_bt_navigator').find('nav2_bt_navigator')
-  behavior_tree_xml_path = os.path.join(nav2_bt_path, 'behavior_trees', 'navigate_w_replanning_and_recovery.xml')
+  #nav2_bt_path = FindPackageShare(package='nav2_bt_navigator').find('nav2_bt_navigator')
+  #behavior_tree_xml_path = os.path.join(nav2_bt_path, 'behavior_trees', 'navigate_w_replanning_and_recovery.xml')
   
   
   amcl_params = os.path.join(pkg_share, '/config/amcl.yaml')
@@ -118,10 +118,10 @@ def generate_launch_description():
     default_value='true',
     description='Automatically startup the nav2 stack')
  
-  declare_bt_xml_cmd = DeclareLaunchArgument(
-    name='default_bt_xml_filename',
-    default_value=behavior_tree_xml_path,
-    description='Full path to the behavior tree xml file to use')
+  #declare_bt_xml_cmd = DeclareLaunchArgument(
+    #name='default_bt_xml_filename',
+    #default_value=behavior_tree_xml_path,
+    #description='Full path to the behavior tree xml file to use')
          
   declare_map_yaml_cmd = DeclareLaunchArgument(
     name='map',
@@ -162,30 +162,23 @@ def generate_launch_description():
     arguments=[default_model_path])
     
     
-  start_sync_slam_toolbox_node = Node(
-    condition=IfCondition(use_slam),
-    parameters=[
-          nav_params_path,
-          {'use_sim_time': use_sim_time}
-        ],
-    package='slam_toolbox',
-    executable='async_slam_toolbox_node',
-    name='slam_toolbox',
-    output='screen')
+  #start_sync_slam_toolbox_node = Node(
+    #condition=IfCondition(use_slam),
+    #parameters=[
+          #nav_params_path,
+          #{'use_sim_time': use_sim_time}
+        #],
+    #package='slam_toolbox',
+    #executable='async_slam_toolbox_node',
+    #name='slam_toolbox',
+    #output='screen')
     
-  #amcl = Node(
-    #package='nav2_amcl',
-    #executable='amcl',
-    #name='amcl',
-    #output='screen',
-    #parameters=[amcl_params],
-    #remappings=remappings)
- 
+    
   start_ros2_navigation_cmd = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir, 'navigation_launch.py')),
-    launch_arguments = {'use_sim_time': use_sim_time,
-                        'autostart': use_nav}.items(),
-    condition=IfCondition(use_nav))
+    PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir, 'bringup_launch.py')),
+    launch_arguments = {'map': static_map_path,
+                        'use_sim_time': use_sim_time,
+                        'autostart': use_slam}.items())
 
   # Launch RViz
   start_rviz_cmd = Node(
@@ -303,7 +296,7 @@ def generate_launch_description():
   ld.add_action(imu)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_robot_localization_cmd)
-  ld.add_action(start_sync_slam_toolbox_node)
+  #ld.add_action(start_sync_slam_toolbox_node)
   ld.add_action(voice_recog)
   ld.add_action(voice_tts)
   ld.add_action(voice_interpreter)
@@ -311,9 +304,8 @@ def generate_launch_description():
   #ld.add_action(nav_lifecycle_manager)
   #ld.add_action(map_server)
   #ld.add_action(amcl)
-  
-  ld.add_action(start_ros2_navigation_cmd)
+
   ld.add_action(start_rviz_cmd)
-  
+  ld.add_action(start_ros2_navigation_cmd)
   
   return ld

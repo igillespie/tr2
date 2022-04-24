@@ -90,9 +90,9 @@ ekf_filter_node:
 # has no pose information, so the first six values would be meaningless in that case. Each vector defaults to all false
 # if unspecified, effectively making this parameter required for each sensor.
         odom0_config: [true, true, false,
+               	false, false, true,
                	false, false, false,
-               	false, false, false,
-               	false, false, false,
+               	false, false, true,
                	false, false, false]
 
         #        [x_pos   , y_pos    , z_pos,
@@ -137,10 +137,11 @@ ekf_filter_node:
 
         imu0: /imu/data
         imu0_config: [false, false, false,
-                      false,  false,  true,
+                      false,  false,  false,
                       false, false, false,
                       false,  false,  true,
-                      false,  false,  false]
+                      true,  false,  false]
+                      
 
         #        [x_pos   , y_pos    , z_pos,
         #         roll    , pitch    , yaw,
@@ -152,13 +153,13 @@ ekf_filter_node:
         #imu0_differential: false
         #imu0_relative: false
         #imu0_queue_size: 10
-        imu0_pose_rejection_threshold: 0.003                 # Note the difference in parameter names
-        #imu0_twist_rejection_threshold: 0.03                #
-        #imu0_linear_acceleration_rejection_threshold: 0.003  #
+        #imu0_pose_rejection_threshold: 0.003                 # Note the difference in parameter names
+        imu0_twist_rejection_threshold: 0.05                #
+        imu0_linear_acceleration_rejection_threshold: 0.1  #
 
 # [ADVANCED] Some IMUs automatically remove acceleration due to gravity, and others don't. If yours doesn't, please set
 # this to true, and *make sure* your data conforms to REP-10	3, specifically, that the data is in ENU frame.
-        imu0_remove_gravitational_acceleration: false
+        imu0_remove_gravitational_acceleration: true
         
         process_noise_covariance: [0.07,   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
                                    0.0,    0.07,   0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
