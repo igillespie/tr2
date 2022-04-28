@@ -55,6 +55,7 @@ def generate_launch_description():
   use_lidar = LaunchConfiguration('use_lidar')
   use_voice = LaunchConfiguration('use_voice')
   use_nav = LaunchConfiguration('use_nav')
+  use_ekf = LaunchConfiguration('use_ekf')
   default_bt_xml_filename = LaunchConfiguration('default_bt_xml_filename')
   map_yaml_file = LaunchConfiguration('map')
   
@@ -101,6 +102,11 @@ def generate_launch_description():
     default_value='False',
     description='Whether to start nav nodes')
     
+  declare_use_ekf_cmd = DeclareLaunchArgument(
+    name='use_ekf',
+    default_value='True',
+    description='Whether to use robot_localization EKF node')
+    
   # Declare the launch arguments  
   declare_model_path_cmd = DeclareLaunchArgument(
    	name='model', 
@@ -145,10 +151,11 @@ def generate_launch_description():
         
   # Start robot localization using an Extended Kalman filter
   start_robot_localization_cmd = Node(
+    condition=IfCondition(use_ekf),
     package='robot_localization',
     executable='ekf_node',
     name='ekf_filter_node',
-    #output='screen',
+    output='screen',
     parameters=[robot_localization_file_path, 
     {'use_sim_time': use_sim_time}])
 
@@ -290,13 +297,12 @@ def generate_launch_description():
   ld.add_action(declare_use_rviz_cmd) 
   ld.add_action(declare_use_sim_time_cmd)
   ld.add_action(declare_use_simulator_cmd)
+  ld.add_action(declare_use_ekf_cmd)
 
 
   # Add any actions
   ld.add_action(micro_ros_agent)
   ld.add_action(lidar_node)
-  #ld.add_action(base_link_tf)
-  #ld.add_action(lidar_link_tf)
   ld.add_action(joy_node)
   ld.add_action(joy_teleop_node)
   ld.add_action(odometry)
@@ -307,10 +313,7 @@ def generate_launch_description():
   ld.add_action(voice_recog)
   ld.add_action(voice_tts)
   ld.add_action(voice_interpreter)
-  
-  #ld.add_action(nav_lifecycle_manager)
-  #ld.add_action(map_server)
-  #ld.add_action(amcl)
+
   
   ld.add_action(start_ros2_navigation_cmd)
   ld.add_action(start_rviz_cmd)
